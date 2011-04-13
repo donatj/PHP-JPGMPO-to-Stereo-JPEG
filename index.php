@@ -1,35 +1,37 @@
 <?php
 
-$fileStream = fopen('HNI_0001.MPO','rb');
+$handle = fopen('HNI_0001.MPO','rb');
 
-$numImgs = 0;
-while(!feof($fileStream)) { 
+define('MPO_JPG_MKR', base64_decode('/w=='));
+define('MPO_JPG_SOI', base64_decode('2A=='));
+define('MPO_JPG_EOI', base64_decode('2Q=='));
 
-	$data = fread($fileStream, 1);
+$imgind = 0;
+while(!feof($handle)) { 
 
-	if($data == base64_decode('/w==')) {
-		$data = fread($fileStream, 1);
-		if($data == base64_decode('2A==')) {			
-			if($level == 0) { 
-				$imgStart[$numImgs] = ftell($fileStream) - 2; 
-			} 
-			$level++; 
+	$data = fread($handle, 1);
+
+	if($data == MPO_JPG_MKR) {
+		$data = fread($handle, 1);
+		if($data == MPO_JPG_SOI) {			
+			if($depth++ == 0) { 
+				$imgStart[$imgind] = ftell($handle) - 2; 
+			}
 		} 
 
-		if($data == base64_decode('2Q==')) {
-			$level--;
-			if($level == 0) { 
-				$imgEnd[$numImgs] = ftell($fileStream) - 2; 
-				$numImgs++; 
+		if($data == MPO_JPG_EOI) {
+			if(--$depth == 0) { 
+				$imgEnd[$imgind] = ftell($handle) - 2; 
+				$imgind++; 
 			} 
 		} 
 	}	
 }
 
 $imgs = array();
-for( $i = 0; $i < $numImgs; $i++ ) {
-	fseek( $fileStream, $imgStart[$i] );
-	$img = imagecreatefromstring( fread( $fileStream, $imgEnd[$i] - $imgStart[$i] ) );
+for( $i = 0; $i < $imgind; $i++ ) {
+	fseek( $handle, $imgStart[$i] );
+	$img = imagecreatefromstring( fread( $handle, $imgEnd[$i] - $imgStart[$i] ) );
 	$imgs[$i] = array( 'img' => $img, 'x' => imagesx($img), 'y' => imagesy($img) );
 	$fullX += $imgs[$i]['x'];
 	$fullY  = max( $fullHeight, $imgs[$i]['y'] );
