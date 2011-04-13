@@ -44,5 +44,5 @@ foreach( $imgs as $img ) {
 	imagecopy($fullImg, $img['img'], $offset_x, 0, 0, 0, $img['x'], $img['y']);
 	$offset_x += $img['x'];
 }
-header('Content-Type: image/png');
+header('Content-Type: image/jpeg');
 imagejpeg($fullImg);
