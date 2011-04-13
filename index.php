@@ -1,5 +1,13 @@
 <?php
 
+/** JPEG Multi-Picture Format to Stereoscopic JPEG **
+*
+* @link http://donatstudios.com/
+* @license http://opensource.org/licenses/mit-license.php
+* @author Jesse G. Donat
+*
+**/
+
 $handle = fopen('HNI_0001.MPO','rb');
 
 define('MPO_JPG_MKR', base64_decode('/w=='));
@@ -21,8 +29,7 @@ while(!feof($handle)) {
 
 		if($data == MPO_JPG_EOI) {
 			if(--$depth == 0) { 
-				$imgEnd[$imgind] = ftell($handle) - 2; 
-				$imgind++; 
+				$imgEnd[$imgind++] = ftell($handle) - 2; 
 			} 
 		} 
 	}	
@@ -44,5 +51,6 @@ foreach( $imgs as $img ) {
 	imagecopy($fullImg, $img['img'], $offset_x, 0, 0, 0, $img['x'], $img['y']);
 	$offset_x += $img['x'];
 }
+
 header('Content-Type: image/jpeg');
 imagejpeg($fullImg);
