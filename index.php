@@ -29,7 +29,7 @@ while(!feof($handle)) {
 
 		if($data == MPO_JPG_EOI) {
 			if(--$depth == 0) { 
-				$imgEnd[$imgind++] = ftell($handle) - 2; 
+				$imgEnd[$imgind++] = ftell($handle);
 			} 
 		} 
 	}	
